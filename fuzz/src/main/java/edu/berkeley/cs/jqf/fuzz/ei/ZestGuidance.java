@@ -28,30 +28,10 @@
  */
 package edu.berkeley.cs.jqf.fuzz.ei;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Console;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
+import java.text.DecimalFormat;
 import java.time.Duration;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -108,6 +88,12 @@ public class ZestGuidance implements Guidance {
 
     /** Set of saved inputs to fuzz. */
     protected ArrayList<Input> savedInputs = new ArrayList<>();
+
+    /** 字典库中的字符串 */
+    public static ArrayList<String> stringList = new ArrayList<>();
+
+    /** 字典库中的字符串及其出现概率*/
+    public static LinkedHashMap<String, String> stringRate = new LinkedHashMap<>();
 
     /** Queue of seeds to fuzz. */
     protected Deque<Input> seedInputs = new ArrayDeque<>();
@@ -526,8 +512,9 @@ public class ZestGuidance implements Guidance {
     }
 
     /** Spawns a new input from thin air (i.e., actually random) */
-    protected Input<?> createFreshInput() {
-        return new LinearInput();
+    protected Input<?> createFreshInput() throws IOException{
+        //return new LinearInput();
+        return new DictInput();
     }
 
     /**
@@ -576,7 +563,15 @@ public class ZestGuidance implements Guidance {
 
             // Make fresh input using either list or maps
             // infoLog("Spawning new input from thin air");
-            currentInput = createFreshInput();
+            try{
+                currentInput = createFreshInput();
+            }catch (IOException e){
+                System.out.println("IOException");
+            }
+
+
+
+
         } else {
             // The number of children to produce is determined by how much of the coverage
             // pool this parent input hits
@@ -1021,7 +1016,6 @@ public class ZestGuidance implements Guidance {
         public abstract void gc();
 
 
-
         /**
          * Returns whether this input should be favored for fuzzing.
          *
@@ -1062,12 +1056,35 @@ public class ZestGuidance implements Guidance {
         public LinearInput() {
             super();
             this.values = new ArrayList<>();
+            // this.values = stringReader("");
         }
 
         public LinearInput(LinearInput other) {
             super(other);
             this.values = new ArrayList<>(other.values);
         }
+
+        /** 按行读取字典库中的字符串，并将字符串类型由String转换成Integer类型 */
+        //public ArrayList<String> stringReader(String fileName) throws IOException {
+        //    try{
+        //        String temp = null;
+        //        File f = new File(fileName);
+        //      /** 指定读取编码 */
+        //        InputStreamReader read = new InputStreamReader(new FileInputStream(f),"GBK");
+        //        /** 字符串 */
+        //        //stringList = new ArrayList<String>();
+        //        BufferedReader reader=new BufferedReader(read);
+        //        while((temp=reader.readLine())!=null &&!"".equals(temp)){
+        //            stringList.add(temp);
+        //        }
+        //        read.close();
+        //        //int size = stringList.size();
+        //        return stringList;
+        //    }catch (IOException e) {
+        //      e.printStackTrace();
+        //        return null;
+        //   }
+        //}
 
 
         @Override
@@ -1162,6 +1179,44 @@ public class ZestGuidance implements Guidance {
         public Iterator<Integer> iterator() {
             return values.iterator();
         }
+    }
+
+    // todo
+    public class DictInput extends LinearInput {
+        /** A list of byte values (0-255) ordered by their index. */
+        protected ArrayList<String> values;
+
+        /** The number of bytes requested so far */
+        protected int requested = 0;
+
+        public DictInput() throws IOException {
+            super();
+            // this.values = new ArrayList<>();
+            this.values = stringReader("");
+        }
+
+        /** 按行读取字典库中的字符串，并将字符串类型由String转换成Integer类型 */
+        public ArrayList<String> stringReader (String fileName) throws IOException {
+            try{
+                String temp = null;
+                File f = new File(fileName);
+                /** 指定读取编码 */
+                InputStreamReader read = new InputStreamReader(new FileInputStream(f),"GBK");
+                /** 字符串 */
+                //stringList = new ArrayList<String>();
+                BufferedReader reader=new BufferedReader(read);
+                while((temp=reader.readLine())!=null &&!"".equals(temp)){
+                    stringList.add(temp);
+                }
+                read.close();
+                //int size = stringList.size();
+                return stringList;
+            }catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
     }
 
     public class SeedInput extends LinearInput {
