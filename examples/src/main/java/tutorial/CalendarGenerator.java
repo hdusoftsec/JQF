@@ -1,4 +1,4 @@
-package tutoriala;
+package tutorial;
 
 import java.util.GregorianCalendar;
 import java.util.TimeZone;

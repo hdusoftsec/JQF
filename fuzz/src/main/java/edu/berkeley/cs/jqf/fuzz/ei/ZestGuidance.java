@@ -29,7 +29,6 @@
 package edu.berkeley.cs.jqf.fuzz.ei;
 
 import java.io.*;
-import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -88,12 +87,6 @@ public class ZestGuidance implements Guidance {
 
     /** Set of saved inputs to fuzz. */
     protected ArrayList<Input> savedInputs = new ArrayList<>();
-
-    /** 字典库中的字符串 */
-    public static ArrayList<String> stringList = new ArrayList<>();
-
-    /** 字典库中的字符串及其出现概率*/
-    public static LinkedHashMap<String, String> stringRate = new LinkedHashMap<>();
 
     /** Queue of seeds to fuzz. */
     protected Deque<Input> seedInputs = new ArrayDeque<>();
@@ -384,8 +377,90 @@ public class ZestGuidance implements Guidance {
     }
 
     // Call only if console exists
+//    private void displayStats() {
+//        // assert (console != null);
+//
+//        Date now = new Date();
+//        long intervalMilliseconds = now.getTime() - lastRefreshTime.getTime();
+//        if (intervalMilliseconds < STATS_REFRESH_TIME_PERIOD) {
+//            return;
+//        }
+//        long interlvalTrials = numTrials - lastNumTrials;
+//        long intervalExecsPerSec = interlvalTrials * 1000L / intervalMilliseconds;
+//        double intervalExecsPerSecDouble = interlvalTrials * 1000.0 / intervalMilliseconds;
+//        lastRefreshTime = now;
+//        lastNumTrials = numTrials;
+//        long elapsedMilliseconds = now.getTime() - startTime.getTime();
+//        long execsPerSec = numTrials * 1000L / elapsedMilliseconds;
+//
+//        String currentParentInputDesc;
+//        if (seedInputs.size() > 0 || savedInputs.isEmpty()) {
+//            currentParentInputDesc = "<seed>";
+//        } else {
+//            Input currentParentInput = savedInputs.get(currentParentInputIdx);
+//            currentParentInputDesc = currentParentInputIdx + " ";
+//            currentParentInputDesc += currentParentInput.isFavored() ? "(favored)" : "(not favored)";
+//            currentParentInputDesc += " {" + numChildrenGeneratedForCurrentParentInput +
+//                    "/" + getTargetChildrenForParent(currentParentInput) + " mutations}";
+//        }
+//
+//        int nonZeroCount = totalCoverage.getNonZeroCount();
+//        double nonZeroFraction = nonZeroCount * 100.0 / totalCoverage.size();
+//        int nonZeroValidCount = validCoverage.getNonZeroCount();
+//        double nonZeroValidFraction = nonZeroValidCount * 100.0 / validCoverage.size();
+//
+//        if (LIBFUZZER_COMPAT_OUTPUT) {
+//            //console.printf("#%,d\tNEW\tcov: %,d exec/s: %,d L: %,d\n", numTrials, nonZeroValidCount, intervalExecsPerSec, currentInput.size());
+//            System.out.printf("#%,d\tNEW\tcov: %,d exec/s: %,d L: %,d\n", numTrials, nonZeroValidCount, intervalExecsPerSec, currentInput.size());
+//        } else if (!QUIET_MODE) {
+//            //console.printf("\033[2J");
+//            System.out.printf("\033[2J");
+//            //console.printf("\033[H");
+//            System.out.printf("\033[H");
+//            //console.printf(this.getTitle() + "\n");
+//            System.out.printf(this.getTitle() + "\n");
+//            if (this.testName != null) {
+//                //console.printf("Test name:            %s\n", this.testName);
+//                System.out.printf("Test name:            %s\n", this.testName);
+//            }
+//            // console.printf("Results directory:    %s\n", this.outputDirectory.getAbsolutePath());
+//            System.out.printf("Results directory:    %s\n", this.outputDirectory.getAbsolutePath());
+//            //console.printf("Elapsed time:         %s (%s)\n", millisToDuration(elapsedMilliseconds), maxDurationMillis == Long.MAX_VALUE ? "no time limit" : ("max " + millisToDuration(maxDurationMillis)));
+//            System.out.printf("Elapsed time:         %s (%s)\n", millisToDuration(elapsedMilliseconds), maxDurationMillis == Long.MAX_VALUE ? "no time limit" : ("max " + millisToDuration(maxDurationMillis)));
+//            // console.printf("Number of executions: %,d\n", numTrials);
+//            System.out.printf("Number of executions: %,d\n", numTrials);
+//            //console.printf("Valid inputs:         %,d (%.2f%%)\n", numValid, numValid * 100.0 / numTrials);
+//            System.out.printf("Valid inputs:         %,d (%.2f%%)\n", numValid, numValid * 100.0 / numTrials);
+//            //console.printf("Cycles completed:     %d\n", cyclesCompleted);
+//            System.out.printf("Cycles completed:     %d\n", cyclesCompleted);
+//            //console.printf("Unique failures:      %,d\n", uniqueFailures.size());
+//            System.out.printf("Unique failures:      %,d\n", uniqueFailures.size());
+//            //console.printf("Queue size:           %,d (%,d favored last cycle)\n", savedInputs.size(), numFavoredLastCycle);
+//            System.out.printf("Queue size:           %,d (%,d favored last cycle)\n", savedInputs.size(), numFavoredLastCycle);
+//            //console.printf("Current parent input: %s\n", currentParentInputDesc);
+//            System.out.printf("Current parent input: %s\n", currentParentInputDesc);
+//            //console.printf("Execution speed:      %,d/sec now | %,d/sec overall\n", intervalExecsPerSec, execsPerSec);
+//            System.out.printf("Execution speed:      %,d/sec now | %,d/sec overall\n", intervalExecsPerSec, execsPerSec);
+//            //console.printf("Total coverage:       %,d branches (%.2f%% of map)\n", nonZeroCount, nonZeroFraction);
+//            System.out.printf("Total coverage:       %,d branches (%.2f%% of map)\n", nonZeroCount, nonZeroFraction);
+//            //console.printf("Valid coverage:       %,d branches (%.2f%% of map)\n", nonZeroValidCount, nonZeroValidFraction);
+//            System.out.printf("Valid coverage:       %,d branches (%.2f%% of map)\n", nonZeroValidCount, nonZeroValidFraction);
+//        }
+//
+//        String plotData = String.format("%d, %d, %d, %d, %d, %d, %.2f%%, %d, %d, %d, %.2f, %d, %d, %.2f%%",
+//                TimeUnit.MILLISECONDS.toSeconds(now.getTime()), cyclesCompleted, currentParentInputIdx,
+//                numSavedInputs, 0, 0, nonZeroFraction, uniqueFailures.size(), 0, 0, intervalExecsPerSecDouble,
+//                numValid, numTrials-numValid, nonZeroValidFraction);
+//        appendLineToFile(statsFile, plotData);
+//
+//    }
+
+    /**  取消通过console进行测试结果显示*/
     private void displayStats() {
-        assert (console != null);
+        //assert (console != null);
+        if (QUIET_MODE) {
+            return;
+        }
 
         Date now = new Date();
         long intervalMilliseconds = now.getTime() - lastRefreshTime.getTime();
@@ -417,26 +492,26 @@ public class ZestGuidance implements Guidance {
         double nonZeroValidFraction = nonZeroValidCount * 100.0 / validCoverage.size();
 
         if (LIBFUZZER_COMPAT_OUTPUT) {
-            console.printf("#%,d\tNEW\tcov: %,d exec/s: %,d L: %,d\n", numTrials, nonZeroValidCount, intervalExecsPerSec, currentInput.size());
-        } else if (!QUIET_MODE) {
-            console.printf("\033[2J");
-            console.printf("\033[H");
-            console.printf(this.getTitle() + "\n");
+            System.out.printf("#%,d\tNEW\tcov: %,d exec/s: %,d L: %,d\n", numTrials, nonZeroValidCount, intervalExecsPerSec, currentInput.size());
+        } else {
+            System.out.printf("\033[2J");
+            System.out.printf("\033[H");
+            System.out.printf(this.getTitle() + "\n");
             if (this.testName != null) {
-                console.printf("Test name:            %s\n", this.testName);
+                System.out.printf("Test name:            %s\n", this.testName);
             }
-            console.printf("Results directory:    %s\n", this.outputDirectory.getAbsolutePath());
-            console.printf("Elapsed time:         %s (%s)\n", millisToDuration(elapsedMilliseconds),
+            System.out.printf("Results directory:    %s\n", this.outputDirectory.getAbsolutePath());
+            System.out.printf("Elapsed time:         %s (%s)\n", millisToDuration(elapsedMilliseconds),
                     maxDurationMillis == Long.MAX_VALUE ? "no time limit" : ("max " + millisToDuration(maxDurationMillis)));
-            console.printf("Number of executions: %,d\n", numTrials);
-            console.printf("Valid inputs:         %,d (%.2f%%)\n", numValid, numValid * 100.0 / numTrials);
-            console.printf("Cycles completed:     %d\n", cyclesCompleted);
-            console.printf("Unique failures:      %,d\n", uniqueFailures.size());
-            console.printf("Queue size:           %,d (%,d favored last cycle)\n", savedInputs.size(), numFavoredLastCycle);
-            console.printf("Current parent input: %s\n", currentParentInputDesc);
-            console.printf("Execution speed:      %,d/sec now | %,d/sec overall\n", intervalExecsPerSec, execsPerSec);
-            console.printf("Total coverage:       %,d branches (%.2f%% of map)\n", nonZeroCount, nonZeroFraction);
-            console.printf("Valid coverage:       %,d branches (%.2f%% of map)\n", nonZeroValidCount, nonZeroValidFraction);
+            System.out.printf("Number of executions: %,d\n", numTrials);
+            System.out.printf("Valid inputs:         %,d (%.2f%%)\n", numValid, numValid * 100.0 / numTrials);
+            System.out.printf("Cycles completed:     %d\n", cyclesCompleted);
+            System.out.printf("Unique failures:      %,d\n", uniqueFailures.size());
+            System.out.printf("Queue size:           %,d (%,d favored last cycle)\n", savedInputs.size(), numFavoredLastCycle);
+            System.out.printf("Current parent input: %s\n", currentParentInputDesc);
+            System.out.printf("Execution speed:      %,d/sec now | %,d/sec overall\n", intervalExecsPerSec, execsPerSec);
+            System.out.printf("Total coverage:       %,d branches (%.2f%% of map)\n", nonZeroCount, nonZeroFraction);
+            System.out.printf("Valid coverage:       %,d branches (%.2f%% of map)\n", nonZeroValidCount, nonZeroValidFraction);
         }
 
         String plotData = String.format("%d, %d, %d, %d, %d, %d, %.2f%%, %d, %d, %d, %.2f, %d, %d, %.2f%%",
@@ -510,7 +585,8 @@ public class ZestGuidance implements Guidance {
     /** Spawns a new input from thin air (i.e., actually random) */
     protected Input<?> createFreshInput() throws IOException{
         //return new LinearInput();
-        return new DictInput();
+        //return new DictInput();
+        return new CertainProbabilityInput();
     }
 
     /**
@@ -692,7 +768,11 @@ public class ZestGuidance implements Guidance {
                 assert(currentInput.size() > 0) : String.format("Empty input: %s", currentInput.desc);
 
                 // libFuzzerCompat stats are only displayed when they hit new coverage
-                if (console != null && LIBFUZZER_COMPAT_OUTPUT) {
+                //if (console != null && LIBFUZZER_COMPAT_OUTPUT) {
+                    //displayStats();
+                //}
+
+                if (LIBFUZZER_COMPAT_OUTPUT) {
                     displayStats();
                 }
 
@@ -744,7 +824,11 @@ public class ZestGuidance implements Guidance {
                     }
 
                     // libFuzzerCompat stats are only displayed when they hit new coverage or crashes
-                    if (console != null && LIBFUZZER_COMPAT_OUTPUT) {
+                    //if (console != null && LIBFUZZER_COMPAT_OUTPUT) {
+                        //displayStats();
+                    //}
+
+                    if (LIBFUZZER_COMPAT_OUTPUT) {
                         displayStats();
                     }
 
@@ -752,7 +836,11 @@ public class ZestGuidance implements Guidance {
         }
 
         // displaying stats on every interval is only enabled for AFL-like stats screen
-        if (console != null && !LIBFUZZER_COMPAT_OUTPUT) {
+        //if (console != null && !LIBFUZZER_COMPAT_OUTPUT) {
+            //displayStats();
+        //}
+
+        if (!LIBFUZZER_COMPAT_OUTPUT) {
             displayStats();
         }
 
@@ -1041,6 +1129,141 @@ public class ZestGuidance implements Guidance {
         }
     }
 
+        /** 初始化根据概率生成的种子字节值 */
+    public class CertainProbabilityInput extends Input<Integer> {
+
+        /** 种子对应的字节值(0-255) */
+        protected ArrayList<Integer> seedValue = new ArrayList<>();
+
+        /** 定义种子出现的概率[0,1) */
+        protected ArrayList<Double> seedProbability = new ArrayList<>();
+
+        /** 根据概率生成的种子字节值 */
+        protected ArrayList<Integer> result = new ArrayList<>();
+
+        /** 种子字节值 */
+        protected ArrayList<Integer> seedOfCertainProbability = new ArrayList<>();
+
+        /** 请求的字节个数 */
+        protected int requestedNum,i,j;
+
+        protected double temp,probability;
+
+        public CertainProbabilityInput(){
+            super();
+            for(i=0;i<256;i++){
+                seedValue.add(i);
+                temp = Math.random();
+                probability = (double) Math.round(temp * 100) / 100;
+                seedProbability.add(probability);
+            }
+            for(j=0;j<256;j++){
+                result.add(seedWithProbability(seedValue,seedProbability));
+            }
+            this.seedOfCertainProbability = result;
+            this.requestedNum = seedOfCertainProbability.size();
+        }
+
+        public Integer seedWithProbability (ArrayList<Integer> v, ArrayList<Double> p){
+            int seed = 0;
+            double totalProbability = 0.0;
+            double temp = Math.random();
+            temp = (double) Math.round(temp * 100) / 100;
+            int i=0;
+            while (temp > totalProbability){
+                seed = v.get(i);
+                totalProbability += p.get(i);
+                i++;
+            }
+            return seed;
+        }
+
+        @Override
+        public int getOrGenerateFresh(Integer key, Random random) {
+            // Otherwise, make sure we are requesting just beyond the end-of-list
+            // assert (key == values.size());
+            if (key != requestedNum) {
+                throw new IllegalStateException(String.format("Bytes from linear input out of order. " +
+                        "Size = %d, Key = %d", seedOfCertainProbability.size(), key));
+            }
+
+            // Don't generate over the limit
+            if (requestedNum >= MAX_INPUT_SIZE) {
+                return -1;
+            }
+
+            // If it exists in the list, return it
+            if (key < seedOfCertainProbability.size()) {
+                requestedNum++;
+                // infoLog("Returning old byte at key=%d, total requested=%d", key, requested);
+                return seedOfCertainProbability.get(key);
+            }
+
+            // Handle end of stream
+            if (GENERATE_EOF_WHEN_OUT) {
+                return -1;
+            } else {
+                // Just generate a random input
+                int val = random.nextInt(256);
+                seedOfCertainProbability.add(val);
+                requestedNum++;
+                // infoLog("Generating fresh byte at key=%d, total requested=%d", key, requested);
+                return val;
+            }
+        }
+
+        @Override
+        public int size() {
+            return seedOfCertainProbability.size();
+        }
+
+        @Override
+        public Input fuzz(Random random) {
+            // Clone this input to create initial version of new child
+            CertainProbabilityInput newInput = new CertainProbabilityInput();
+
+            // Stack a bunch of mutations
+            int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
+            newInput.desc += ",havoc:"+numMutations;
+
+            boolean setToZero = random.nextDouble() < 0.1; // one out of 10 times
+
+            for (int mutation = 1; mutation <= numMutations; mutation++) {
+
+                // Select a random offset and size
+                int offset = random.nextInt(newInput.seedOfCertainProbability.size());
+                int mutationSize = sampleGeometric(random, MEAN_MUTATION_SIZE);
+
+                // desc += String.format(":%d@%d", mutationSize, idx);
+
+                // Mutate a contiguous set of bytes from offset
+                for (int i = offset; i < offset + mutationSize; i++) {
+                    // Don't go past end of list
+                    if (i >= newInput.seedOfCertainProbability.size()) {
+                        break;
+                    }
+
+                    // Otherwise, apply a random mutation
+                    int mutatedValue = setToZero ? 0 : random.nextInt(256);
+                    newInput.seedOfCertainProbability.set(i, mutatedValue);
+                }
+            }
+            return newInput;
+        }
+
+        @Override
+        public void gc() {
+            // Remove elements beyond "requested"
+            seedOfCertainProbability = new ArrayList<>(seedOfCertainProbability.subList(0, requestedNum));
+            seedOfCertainProbability.trimToSize();
+        }
+
+        @Override
+        public Iterator<Integer> iterator() {
+            return seedOfCertainProbability.iterator();
+        }
+    }
+
     public class LinearInput extends Input<Integer> {
 
         /** A list of byte values (0-255) ordered by their index. */
@@ -1052,36 +1275,12 @@ public class ZestGuidance implements Guidance {
         public LinearInput() {
             super();
             this.values = new ArrayList<>();
-            // this.values = stringReader("");
         }
 
         public LinearInput(LinearInput other) {
             super(other);
             this.values = new ArrayList<>(other.values);
         }
-
-        /** 按行读取字典库中的字符串，并将字符串类型由String转换成Integer类型 */
-        //public ArrayList<String> stringReader(String fileName) throws IOException {
-        //    try{
-        //        String temp = null;
-        //        File f = new File(fileName);
-        //      /** 指定读取编码 */
-        //        InputStreamReader read = new InputStreamReader(new FileInputStream(f),"GBK");
-        //        /** 字符串 */
-        //        //stringList = new ArrayList<String>();
-        //        BufferedReader reader=new BufferedReader(read);
-        //        while((temp=reader.readLine())!=null &&!"".equals(temp)){
-        //            stringList.add(temp);
-        //        }
-        //        read.close();
-        //        //int size = stringList.size();
-        //        return stringList;
-        //    }catch (IOException e) {
-        //      e.printStackTrace();
-        //        return null;
-        //   }
-        //}
-
 
         @Override
         public int getOrGenerateFresh(Integer key, Random random) {
@@ -1175,44 +1374,6 @@ public class ZestGuidance implements Guidance {
         public Iterator<Integer> iterator() {
             return values.iterator();
         }
-    }
-
-    // todo
-    public class DictInput extends LinearInput {
-        /** A list of byte values (0-255) ordered by their index. */
-        protected ArrayList<String> values;
-
-        /** The number of bytes requested so far */
-        protected int requested = 0;
-
-        public DictInput() throws IOException {
-            super();
-            // this.values = new ArrayList<>();
-            this.values = stringReader("");
-        }
-
-        /** 按行读取字典库中的字符串，并将字符串类型由String转换成Integer类型 */
-        public ArrayList<String> stringReader (String fileName) throws IOException {
-            try{
-                String temp = null;
-                File f = new File(fileName);
-                /** 指定读取编码 */
-                InputStreamReader read = new InputStreamReader(new FileInputStream(f),"GBK");
-                /** 字符串 */
-                //stringList = new ArrayList<String>();
-                BufferedReader reader=new BufferedReader(read);
-                while((temp=reader.readLine())!=null &&!"".equals(temp)){
-                    stringList.add(temp);
-                }
-                read.close();
-                //int size = stringList.size();
-                return stringList;
-            }catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
     }
 
     public class SeedInput extends LinearInput {

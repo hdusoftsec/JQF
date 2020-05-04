@@ -1,4 +1,4 @@
-package tutoriala;
+package tutorial;
 
 import java.util.*;
 import static java.util.GregorianCalendar.*;
@@ -14,19 +14,19 @@ import edu.berkeley.cs.jqf.fuzz.*;
 public class CalendarTest {
 
     @Fuzz
-    public void testLeapYear(@From(CalendarGenerator.class) GregorianCalendar cal) {
+    public void testLeapYear(@From(tutorial.CalendarGenerator.class) GregorianCalendar cal) {
         // Assume that the date is Feb 29
         assumeTrue(cal.get(MONTH) == FEBRUARY);
         assumeTrue(cal.get(DAY_OF_MONTH) == 29);
 
         // Under this assumption, validate leap year rules
-        assertTrue(cal.get(YEAR) + " should be a leap year", CalendarLogic.isLeapYear(cal));
+        assertTrue(cal.get(YEAR) + " should be a leap year", tutorial.CalendarLogic.isLeapYear(cal));
     }
 
     @Fuzz
-    public void testCompare(@Size(max=100) List<@From(CalendarGenerator.class) GregorianCalendar> cals) {
+    public void testCompare(@Size(max=100) List<@From(tutorial.CalendarGenerator.class) GregorianCalendar> cals) {
         // Sort list of calendar objects using our custom comparator function
-        Collections.sort(cals, CalendarLogic::compare);
+        Collections.sort(cals, tutorial.CalendarLogic::compare);
 
         // If they have an ordering, then the sort should succeed
         for (int i = 1; i < cals.size(); i++) {
