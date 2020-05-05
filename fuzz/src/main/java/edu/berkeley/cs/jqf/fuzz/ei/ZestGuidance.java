@@ -605,9 +605,13 @@ public class ZestGuidance implements Guidance {
                 assert currentInput instanceof LinearInput : "ZestGuidance should only mutate LinearInput(s)";
 
                 // For linear inputs, get with key = bytesRead (which is then incremented)
-                LinearInput linearInput = (LinearInput) currentInput;
+                // LinearInput linearInput = (LinearInput) currentInput;
+                CertainProbabilityInput certainProbaInput = (CertainProbabilityInput) currentInput;
                 // Attempt to get a value from the list, or else generate a random value
-                int ret = linearInput.getOrGenerateFresh(bytesRead++, random);
+                // int ret = linearInput.getOrGenerateFresh(bytesRead++, random);
+                //int ret = certainProbaInput.getOrGenerateFresh(bytesRead++, random);
+                bytesRead = certainProbaInput.size();
+                int ret = certainProbaInput.getOrGenerateFresh(bytesRead++,random);
                 // infoLog("read(%d) = %d", bytesRead, ret);
                 return ret;
             }
@@ -1183,7 +1187,7 @@ public class ZestGuidance implements Guidance {
             // Otherwise, make sure we are requesting just beyond the end-of-list
             // assert (key == values.size());
             if (key != requestedNum) {
-                throw new IllegalStateException(String.format("Bytes from linear input out of order. " +
+                throw new IllegalStateException(String.format("Bytes from certain probability input out of order. " +
                         "Size = %d, Key = %d", seedOfCertainProbability.size(), key));
             }
 
