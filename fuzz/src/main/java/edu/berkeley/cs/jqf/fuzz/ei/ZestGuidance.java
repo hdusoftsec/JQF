@@ -584,8 +584,8 @@ public class ZestGuidance implements Guidance {
 
     /** Spawns a new input from thin air (i.e., actually random) */
     protected Input<?> createFreshInput() throws IOException{
-        //return new LinearInput();
-        //return new DictInput();
+        // return new LinearInput();
+        // return new DictInput();
         return new CertainProbabilityInput();
     }
 
@@ -602,14 +602,13 @@ public class ZestGuidance implements Guidance {
 
             @Override
             public int read() throws IOException {
-                assert currentInput instanceof LinearInput : "ZestGuidance should only mutate LinearInput(s)";
+                // assert currentInput instanceof LinearInput : "ZestGuidance should only mutate LinearInput(s)";
 
                 // For linear inputs, get with key = bytesRead (which is then incremented)
                 // LinearInput linearInput = (LinearInput) currentInput;
                 CertainProbabilityInput certainProbaInput = (CertainProbabilityInput) currentInput;
                 // Attempt to get a value from the list, or else generate a random value
                 // int ret = linearInput.getOrGenerateFresh(bytesRead++, random);
-                //int ret = certainProbaInput.getOrGenerateFresh(bytesRead++, random);
                 bytesRead = certainProbaInput.size();
                 int ret = certainProbaInput.getOrGenerateFresh(bytesRead++,random);
                 // infoLog("read(%d) = %d", bytesRead, ret);
@@ -1133,8 +1132,11 @@ public class ZestGuidance implements Guidance {
         }
     }
 
-        /** 初始化根据概率生成的种子字节值 */
-    public class CertainProbabilityInput extends Input<Integer> {
+    /** 初始化根据概率生成的种子字节值 */
+    public class CertainProbabilityInput extends edu.berkeley.cs.jqf.fuzz.ei.ZestGuidance.Input<Integer> {
+
+        /** 从字典库读取的字符*/
+        protected ArrayList<Integer> byteInput = new ArrayList<>();
 
         /** 种子对应的字节值(0-255) */
         protected ArrayList<Integer> seedValue = new ArrayList<>();
@@ -1151,17 +1153,49 @@ public class ZestGuidance implements Guidance {
         /** 请求的字节个数 */
         protected int requestedNum,i,j;
 
+        /** 种子的出现概率*/
         protected double temp,probability;
+
+        /** 从字典库中读取字符 */
+        public ArrayList<Integer> fileReader(String filePath){
+            byteInput = new ArrayList<>();
+            File file= new File(filePath);
+            InputStream in = null;
+            try {
+                in = new FileInputStream(file);
+                int tempbyte;
+                while ((tempbyte = in.read()) != -1) {
+                    byteInput.add(tempbyte);
+                }
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return byteInput;
+        }
+
+        /** 去重 */
+        public ArrayList<Integer> getSingle(ArrayList<Integer> list){
+            ArrayList newList = new ArrayList();
+            Iterator it = list.iterator();
+            while(it.hasNext()){
+                Object obj = it.next();
+                if(!newList.contains(obj)){
+                    newList.add(obj);
+                }
+            }
+            return newList;
+        }
 
         public CertainProbabilityInput(){
             super();
-            for(i=0;i<256;i++){
-                seedValue.add(i);
-                temp = Math.random();
+            byteInput = fileReader("D:\\Zest\\jqf\\examples\\src\\test\\resources\\dictionaries\\seed.dict");
+            seedValue = getSingle(byteInput);
+            for (i=0;i<seedValue.size();i++){
                 probability = (double) Math.round(temp * 100) / 100;
                 seedProbability.add(probability);
             }
-            for(j=0;j<256;j++){
+            for(j=0;j<seedValue.size();j++){
                 result.add(seedWithProbability(seedValue,seedProbability));
             }
             this.seedOfCertainProbability = result;
@@ -1174,7 +1208,7 @@ public class ZestGuidance implements Guidance {
             double temp = Math.random();
             temp = (double) Math.round(temp * 100) / 100;
             int i=0;
-            while (temp > totalProbability){
+            while ((temp > totalProbability) & (i < v.size())){
                 seed = v.get(i);
                 totalProbability += p.get(i);
                 i++;
@@ -1222,9 +1256,10 @@ public class ZestGuidance implements Guidance {
         }
 
         @Override
-        public Input fuzz(Random random) {
+        public edu.berkeley.cs.jqf.fuzz.ei.ZestGuidance.Input fuzz(Random random) {
             // Clone this input to create initial version of new child
             CertainProbabilityInput newInput = new CertainProbabilityInput();
+
 
             // Stack a bunch of mutations
             int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
