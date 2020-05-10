@@ -85,6 +85,12 @@ public class ZestGuidance implements Guidance {
     /** The directory where all inputs are saved (if enabled). */
     protected File savedAllDirectory;
 
+    /** 字典库的绝对路径 */
+    protected static String absPathOfDict = "D://Zest//jqf//examples//src//test//resources//dictionaries//seed.dict";
+
+    /** 字典库的字符串 */
+    protected static ArrayList<Integer> seedValues = DictReader.seedsOfCertainProbability(absPathOfDict);
+
     /** Set of saved inputs to fuzz. */
     protected ArrayList<Input> savedInputs = new ArrayList<>();
 
@@ -1132,88 +1138,28 @@ public class ZestGuidance implements Guidance {
         }
     }
 
+    // todo
+    /** 改成: 按行读字符串，设置概率，再转成字节值，存到ArrayList<Integer>v*/
+
     /** 初始化根据概率生成的种子字节值 */
-    public class CertainProbabilityInput extends edu.berkeley.cs.jqf.fuzz.ei.ZestGuidance.Input<Integer> {
-
-        /** 从字典库读取的字符*/
-        protected ArrayList<Integer> byteInput = new ArrayList<>();
-
-        /** 种子对应的字节值(0-255) */
-        protected ArrayList<Integer> seedValue = new ArrayList<>();
-
-        /** 定义种子出现的概率[0,1) */
-        protected ArrayList<Double> seedProbability = new ArrayList<>();
-
-        /** 根据概率生成的种子字节值 */
-        protected ArrayList<Integer> result = new ArrayList<>();
+    public class CertainProbabilityInput extends Input<Integer> {
 
         /** 种子字节值 */
-        protected ArrayList<Integer> seedOfCertainProbability = new ArrayList<>();
+        protected ArrayList<Integer> seedOfCertainProbability;
 
         /** 请求的字节个数 */
-        protected int requestedNum,i,j;
-
-        /** 种子的出现概率*/
-        protected double temp,probability;
-
-        /** 从字典库中读取字符 */
-        public ArrayList<Integer> fileReader(String filePath){
-            byteInput = new ArrayList<>();
-            File file= new File(filePath);
-            InputStream in = null;
-            try {
-                in = new FileInputStream(file);
-                int tempbyte;
-                while ((tempbyte = in.read()) != -1) {
-                    byteInput.add(tempbyte);
-                }
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return byteInput;
-        }
-
-        /** 去重 */
-        public ArrayList<Integer> getSingle(ArrayList<Integer> list){
-            ArrayList newList = new ArrayList();
-            Iterator it = list.iterator();
-            while(it.hasNext()){
-                Object obj = it.next();
-                if(!newList.contains(obj)){
-                    newList.add(obj);
-                }
-            }
-            return newList;
-        }
+        protected int requestedNum;
 
         public CertainProbabilityInput(){
             super();
-            byteInput = fileReader("D:\\Zest\\jqf\\examples\\src\\test\\resources\\dictionaries\\seed.dict");
-            seedValue = getSingle(byteInput);
-            for (i=0;i<seedValue.size();i++){
-                probability = (double) Math.round(temp * 100) / 100;
-                seedProbability.add(probability);
-            }
-            for(j=0;j<seedValue.size();j++){
-                result.add(seedWithProbability(seedValue,seedProbability));
-            }
-            this.seedOfCertainProbability = result;
+            this.seedOfCertainProbability = seedValues;
             this.requestedNum = seedOfCertainProbability.size();
         }
 
-        public Integer seedWithProbability (ArrayList<Integer> v, ArrayList<Double> p){
-            int seed = 0;
-            double totalProbability = 0.0;
-            double temp = Math.random();
-            temp = (double) Math.round(temp * 100) / 100;
-            int i=0;
-            while ((temp > totalProbability) & (i < v.size())){
-                seed = v.get(i);
-                totalProbability += p.get(i);
-                i++;
-            }
-            return seed;
+        public CertainProbabilityInput(CertainProbabilityInput other){
+            super();
+            this.seedOfCertainProbability = new ArrayList<>(other.seedOfCertainProbability);
+            this.requestedNum = other.seedOfCertainProbability.size();
         }
 
         @Override
@@ -1222,7 +1168,7 @@ public class ZestGuidance implements Guidance {
             // assert (key == values.size());
             if (key != requestedNum) {
                 throw new IllegalStateException(String.format("Bytes from certain probability input out of order. " +
-                        "Size = %d, Key = %d", seedOfCertainProbability.size(), key));
+                        "Size = %d, Key = %d, requestedNum = %d", seedOfCertainProbability.size(), key, requestedNum));
             }
 
             // Don't generate over the limit
@@ -1256,10 +1202,9 @@ public class ZestGuidance implements Guidance {
         }
 
         @Override
-        public edu.berkeley.cs.jqf.fuzz.ei.ZestGuidance.Input fuzz(Random random) {
+        public Input fuzz(Random random) {
             // Clone this input to create initial version of new child
-            CertainProbabilityInput newInput = new CertainProbabilityInput();
-
+            CertainProbabilityInput newInput = new CertainProbabilityInput(this);
 
             // Stack a bunch of mutations
             int numMutations = sampleGeometric(random, MEAN_MUTATION_COUNT);
