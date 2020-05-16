@@ -7,8 +7,8 @@ import java.lang.Exception;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-
-public class DictReader {
+/** 读二进制字典库 */
+public class DictReaderA {
 
     /** 存储字典库中的字符串 */
     protected static ArrayList<Integer> dictInput = new ArrayList<>();
@@ -25,6 +25,13 @@ public class DictReader {
     /** 根据概率生成的种子输入 */
     protected static ArrayList<Integer> seedInput = new ArrayList<>();
 
+    /** 字符 */
+    protected static ArrayList<Integer> dictInputByChar = new ArrayList<>();
+
+    /** 字符串 */
+    protected static ArrayList<String> dictInputByString = new ArrayList<>();
+
+
     /** 获取字典库中的字符串 */
     public static ArrayList<Integer> getDictInput(String filePath){
         File file= new File(filePath);
@@ -40,6 +47,87 @@ public class DictReader {
             e.printStackTrace();
         }
         return dictInput;
+    }
+
+    public static ArrayList<String> getDictInputByLine(String filePath){
+        File file = new File(filePath);
+        BufferedReader reader = null;
+        try {
+            System.out.println("以行为单位读取文件内容，一次读一整行：");
+            reader = new BufferedReader(new FileReader(file));
+            String tempString = null;
+            int line = 1;
+            while ((tempString = reader.readLine()) != null) {
+                dictInputByString.add(tempString);
+                System.out.println("line " + line + ": " + tempString);
+                line++;
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+            }
+        }
+        return dictInputByString;
+    }
+
+    /** 按字符获取字典库中的字符串 */
+    public static void getDictInputByChar(String filePath){
+        File file = new File(filePath);
+        Reader reader = null;
+        try {
+            System.out.println("以字符为单位读取文件内容，一次读一个字节：");
+            reader = new InputStreamReader(new FileInputStream(file));
+            int tempChar;
+            while ((tempChar = reader.read()) != -1) {
+                if (((char) tempChar) != '\r') {
+                    System.out.print((char) tempChar);
+//                    dictInputByChar.add(tempChar);
+//                    System.out.println((char)tempChar + "对应Integer值：" + tempChar);
+                }
+            }
+            reader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            System.out.println("以字符为单位读取文件内容，一次读多个字节：");
+            char[] tempchars = new char[30];
+            int charread = 0;
+            reader = new InputStreamReader(new FileInputStream(filePath));
+            // 读入多个字符到字符数组中，charread为一次读取字符数
+            while ((charread = reader.read(tempchars)) != -1) {
+                // 同样屏蔽掉\r不显示
+                if ((charread == tempchars.length)
+                        && (tempchars[tempchars.length - 1] != '\r')) {
+                    System.out.print(tempchars);
+                } else {
+                    for (int i = 0; i < charread; i++) {
+                        if (tempchars[i] == '\r') {
+                            continue;
+                        } else {
+                            System.out.print(tempchars[i]);
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+            }
+        }
+
     }
 
     /** 获取字符串的概率（目前是随机生成，后面要优化成统计概率） */
@@ -112,14 +200,5 @@ public class DictReader {
         }
 
         return seedInput;
-    }
-
-    public static void main(String[] args) {
-        String path = "D://Zest//jqf//examples//src//test//resources//dictionaries//seed.dict";
-        ArrayList<Integer> seedValues = DictReader.seedsOfCertainProbability(path);
-        System.out.println("---------------------------------------------------------");
-        System.out.println("seedValues： "  + seedValues);
-        System.out.println("seedValues的大小： " + seedValues.size());
-        System.out.println("---------------------------------------------------------");
     }
 }

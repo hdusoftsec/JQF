@@ -85,11 +85,11 @@ public class ZestGuidance implements Guidance {
     /** The directory where all inputs are saved (if enabled). */
     protected File savedAllDirectory;
 
-    /** 字典库的绝对路径 */
-    protected static String absPathOfDict = "D://Zest//jqf//examples//src//test//resources//dictionaries//seed.dict";
+    /** 字典库路径 */
+    protected static String absPathOfDict = "D:\\Zest\\jqf\\examples\\src\\test\\resources\\dictionaries\\compiler.dict";
 
-    /** 字典库的字符串 */
-    protected static ArrayList<Integer> seedValues = DictReader.seedsOfCertainProbability(absPathOfDict);
+    /** 根据概率生成的种子 */
+    protected static ArrayList<Integer> seedValues = DictReaderB.seedsOfCertainProbability(absPathOfDict);
 
     /** Set of saved inputs to fuzz. */
     protected ArrayList<Input> savedInputs = new ArrayList<>();
@@ -926,8 +926,10 @@ public class ZestGuidance implements Guidance {
     protected void writeCurrentInputToFile(File saveFile) throws IOException {
         try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(saveFile))) {
             for (Integer b : currentInput) {
-                assert (b >= 0 && b < 256);
-                out.write(b);
+                // assert (b >= 0 && b < 256);
+                if(b != null){
+                    out.write(b);
+                }
             }
         }
 
@@ -1137,9 +1139,6 @@ public class ZestGuidance implements Guidance {
             return (int) ceil(log(1 - uniform) / log(1 - p));
         }
     }
-
-    // todo
-    /** 改成: 按行读字符串，设置概率，再转成字节值，存到ArrayList<Integer>v*/
 
     /** 初始化根据概率生成的种子字节值 */
     public class CertainProbabilityInput extends Input<Integer> {
