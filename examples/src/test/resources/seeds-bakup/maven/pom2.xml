@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" child.project.url.inherit.append.path="false">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.2.6.RELEASE</version>
+    <relativePath />
+  </parent>
+
+  <groupId>fr.marcwrobel</groupId>
+  <artifactId>parent</artifactId>
+  <version>2.2.2-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>${this.name}</name>
+  <description>${this.description}</description>
+  <url>${this.url}</url>
+  <inceptionYear>${this.inceptionYear}</inceptionYear>
+
+  <organization>
+    <name>${dev.name}</name>
+    <url>${dev.url}</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>${dev.name}</name>
+      <email>${dev.email}</email>
+      <url>${dev.url}</url>
+    </developer>
+  </developers>
+
+  <!--
+    Using child.*.inherit.append.path avoid path addition to inherited URLs. Re-declare to override.
+    See https://issues.apache.org/jira/browse/MNG-5951.
+  -->
+  <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
+    <url>${this.scm.url}</url>
+    <connection>${this.scm.connection}</connection>
+    <developerConnection>${this.scm.developerConnection}</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <system>${this.issueManagement.system}</system>
+    <url>${this.issueManagement.url}</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>${this.ciManagement.system}</system>
+    <url>${this.ciManagement.url}</url>
+  </ciManagement>
+
+  <distributionManagement>
+    <repository>
+      <id>${this.distributionManagement.system}</id>
+      <name>${this.distributionManagement.name}</name>
+      <url>${this.distributionManagement.url}</url>
+    </repository>
+  </distributionManagement>
+
+  <properties>
+    <this.name>${project.artifactId}</this.name>
+    <this.description>${dev.name} parent POM.</this.description>
+    <this.url>${this.scm.url}</this.url>
+    <this.inceptionYear>2019</this.inceptionYear>
+
+    <this.defaultGoal>install</this.defaultGoal>
+    <this.resource.delimiter>@</this.resource.delimiter>
+
+    <this.java.version>11</this.java.version>
+    <this.java.version.enforced>[${this.java.version},)</this.java.version.enforced>
+    <this.maven.version>3.6.3</this.maven.version>
+    <this.maven.version.enforced>[${this.maven.version},)</this.maven.version.enforced>
+
+    <this.scm.system>GitHub</this.scm.system>
+    <this.scm.project>${project.artifactId}</this.scm.project>
+    <this.scm.url>https://github.com/${dev.github.username}/${this.scm.project}</this.scm.url>
+    <this.scm.connection>
+      scm:git:git@github.com:${dev.github.username}/${this.scm.project}
+    </this.scm.connection>
+    <this.scm.developerConnection>${this.scm.connection}</this.scm.developerConnection>
+
+    <this.issueManagement.system>${this.scm.system}</this.issueManagement.system>
+    <this.issueManagement.project>${this.scm.project}</this.issueManagement.project>
+    <this.issueManagement.url>${this.scm.url}/issues</this.issueManagement.url>
+
+    <this.ciManagement.system>GitHub Actions</this.ciManagement.system>
+    <this.ciManagement.project>${project.artifactId}</this.ciManagement.project>
+    <this.ciManagement.url>${this.scm.url}/actions</this.ciManagement.url>
+
+    <this.distributionManagement.system>sonatype-nexus-staging</this.distributionManagement.system>
+    <this.distributionManagement.repository>Sonatype OSSRH</this.distributionManagement.repository>
+    <this.distributionManagement.url>
+      https://oss.sonatype.org/service/local/staging/deploy/maven2
+    </this.distributionManagement.url>
+
+    <this.docker.from-image>openjdk:${this.java.version}-jre-slim</this.docker.from-image>
+    <this.docker.to-image>${dev.dockerhub.username}/${project.name}</this.docker.to-image>
+
+    <dev.name>Marc Wrobel</dev.name>
+    <dev.username>marcwrobel</dev.username>
+    <dev.email>marc.wrobel@gmail.com</dev.email>
+    <dev.url>http://www.marcwrobel.fr/</dev.url>
+    <dev.github.username>${dev.username}</dev.github.username>
+    <dev.dockerhub.username>${dev.username}</dev.dockerhub.username>
+    <dev.sonarcloud.username>${dev.username}</dev.sonarcloud.username>
+
+    <!-- Dependencies versions -->
+    <spring-boot.version>${project.parent.version}</spring-boot.version>
+
+    <!-- Plugins -->
+    <maven-git-code-format.version>1.39</maven-git-code-format.version>
+    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+    <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+    <jib-maven-plugin.version>2.1.0</jib-maven-plugin.version>
+    <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
+
+    <!-- Spring Boot properties -->
+    <java.version>${this.java.version}</java.version>
+    <resource.delimiter>${this.resource.delimiter}</resource.delimiter>
+
+    <!-- Sonar properties. SonarCloud's credentials must be provided externally. -->
+    <sonar.organization>${dev.sonarcloud.username}</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+  </properties>
+
+  <build>
+    <defaultGoal>${this.defaultGoal}</defaultGoal>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>enforce-maven</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireMavenVersion>
+                    <version>${this.maven.version.enforced}</version>
+                  </requireMavenVersion>
+                  <requireJavaVersion>
+                    <version>${this.java.version.enforced}</version>
+                  </requireJavaVersion>
+                  <banDuplicatePomDependencyVersions />
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${maven-gpg-plugin.version}</version>
+        </plugin>
+
+        <!-- http://maven.apache.org/maven-ci-friendly.html -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <configuration>
+            <updatePomFile>true</updatePomFile>
+            <flattenMode>resolveCiFriendliesOnly</flattenMode>
+          </configuration>
+          <executions>
+            <execution>
+              <id>flatten</id>
+              <phase>process-resources</phase>
+              <goals>
+                <goal>flatten</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>flatten.clean</id>
+              <phase>clean</phase>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>pl.project13.maven</groupId>
+          <artifactId>git-commit-id-plugin</artifactId>
+          <configuration>
+            <verbose>false</verbose>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco-maven-plugin.version}</version>
+        </plugin>
+
+        <plugin>
+          <groupId>com.google.cloud.tools</groupId>
+          <artifactId>jib-maven-plugin</artifactId>
+          <version>${jib-maven-plugin.version}</version>
+          <configuration>
+            <from>
+              <image>${this.docker.from-image}</image>
+            </from>
+            <to>
+              <image>${this.docker.to-image}</image>
+              <tags>
+                <tag>${project.version}</tag>
+              </tags>
+            </to>
+          </configuration>
+        </plugin>
+
+        <!--
+          Use it with the appropriate plugin / configuration in your IDE.
+          See https://github.com/google/google-java-format for more information.
+        -->
+        <plugin>
+          <groupId>com.cosium.code</groupId>
+          <artifactId>maven-git-code-format</artifactId>
+          <version>${maven-git-code-format.version}</version>
+          <executions>
+            <execution>
+              <id>install-formatter-hook</id>
+              <goals>
+                <goal>install-hooks</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <configuration>
+            <tagNameFormat>v@{project.version}</tagNameFormat>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>${sonar-maven-plugin.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>analyze</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <append>true</append>
+            </configuration>
+            <executions>
+              <execution>
+                <id>agent-for-ut</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>agent-for-it</id>
+                <goals>
+                  <goal>prepare-agent-integration</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>jacoco-site</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

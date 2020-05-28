@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+      <property name="cvsroot" value=":pserver:wang:@192.168.1.2:/cvsroot"/>
+      <property name="basedir" value="/tmp/testant/"/>
+      <property name="cvs.password" value="wang"/>
+      <property name="cvs.passfile" value="${basedir}/ant.cvspass"/>
+      <target name="initpass">
+              <cvspass cvsroot="${cvsroot}" password="${cvs.password}" passfile="${cvs.passfile}"/>
+      </target>
+      <target name="checkout" depends="initpass">
+              <cvs cvsroot="${cvsroot}" command="checkout" cvsrsh="ssh" package="myproject" dest="${basedir}"
+               passfile="${cvs.passfile}"/>
+       </target>
+</project>

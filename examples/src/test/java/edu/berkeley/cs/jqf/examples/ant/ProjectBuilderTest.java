@@ -84,7 +84,7 @@ public class ProjectBuilderTest {
 
     @Fuzz
     public void testWithGenerator(@From(XmlDocumentGenerator.class)
-                                      @Dictionary("dictionaries/ant-project.dict") Document dom) {
+                                      @Dictionary("src/test/resources/dictionaries/ant-project.dict") Document dom) {
         testWithInputStream(XMLDocumentUtils.documentToInputStream(dom));
     }
 

@@ -229,6 +229,10 @@ public class FuzzGoal extends AbstractMojo {
     @Parameter(property="runTimeout")
     private int runTimeout;
 
+    //zyp
+
+    @Parameter(property="usingSnippet")
+    private boolean usingSnippet;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -261,6 +265,12 @@ public class FuzzGoal extends AbstractMojo {
         }
         if (runTimeout > 0) {
             System.setProperty("jqf.ei.TIMEOUT", String.valueOf(runTimeout));
+        }
+
+        // zyp
+        if(usingSnippet)
+        {
+            System.setProperty("jqf.ei.usingSnippet", "true");
         }
 
         Duration duration = null;
