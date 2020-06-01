@@ -28,22 +28,29 @@
  */
 package edu.berkeley.cs.jqf.examples.common;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.pholser.junit.quickcheck.generator.GenerationStatus;
 import com.pholser.junit.quickcheck.generator.Generator;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
+import edu.berkeley.cs.jqf.fuzz.ei.SeedsGenerator;
+import edu.berkeley.cs.jqf.fuzz.ei.TagsGenerator;
 
 public class DictionaryBackedStringGenerator extends Generator<String> {
 
-    private final List<String> dictionary;
+    private final ArrayList<String> dictionary;
     private Generator<String> fallback;
+    //jy
+    private static String path = "/mnt/d/Zest/jqf/examples/src/test/seeds/xml/pom.xml";
+    private static ArrayList<String> dictionaryList = new ArrayList<>();
+    private static ArrayList<String> seedList = new ArrayList<>();
+    private static ArrayList<String> tagList = new ArrayList<>();
+    private static ArrayList<Double> probabilityList = new ArrayList<>();
+    private static Map<String,Double> tagWithProbability = new HashMap<>();
 
     public DictionaryBackedStringGenerator(String source, Generator<String> fallback) throws IOException {
         super(String.class);
@@ -51,7 +58,7 @@ public class DictionaryBackedStringGenerator extends Generator<String> {
         this.fallback = fallback;
 
         // Read dictionary words
-        try (InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(source)) {
+        try (InputStream in = new FileInputStream(source)) {
             if (in == null) {
                 throw new FileNotFoundException("Dictionary file not found: " + source);
             }
@@ -61,14 +68,27 @@ public class DictionaryBackedStringGenerator extends Generator<String> {
             while ((item = br.readLine()) != null) {
                 dictionary.add(item);
             }
+            //jy
+//            tagWithProbability = SeedsGenerator.getStringWithProbability(dictionary);
+//            tagList = SeedsGenerator.getStringList(tagWithProbability);
+//            probabilityList = SeedsGenerator.getProbabilityList(tagWithProbability);
+//            seedList = SeedsGenerator.getSeedList(tagList,probabilityList);
+            dictionaryList = TagsGenerator.getDictionaryList(path);
+            tagWithProbability = TagsGenerator.getStringWithProbability(dictionaryList);
+            tagList = TagsGenerator.getStringList(tagWithProbability);
+            probabilityList = TagsGenerator.getProbabilityList(tagWithProbability);
+            seedList = TagsGenerator.getSeedList(tagList, probabilityList);
         }
     }
 
     @Override
     public String generate(SourceOfRandomness random, GenerationStatus status) {
         if (true) {
-            int choice = random.nextInt(dictionary.size());
-            return dictionary.get(choice);
+//            int choice = random.nextInt(dictionary.size());
+//            return dictionary.get(choice);
+            // jy
+            int choice = random.nextInt(seedList.size());
+            return seedList.get(choice);
         } else {
             if (fallback == null) {
                 fallback = gen().type(String.class);
