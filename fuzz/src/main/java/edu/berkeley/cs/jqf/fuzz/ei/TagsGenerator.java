@@ -25,8 +25,7 @@ public class TagsGenerator {
     /** 种子列表 */
     private static ArrayList<String> seedList = new ArrayList<>();
 
-    /** 获取字典库 */
-    private static String path = "D:\\Zest\\jqf\\examples\\src\\test\\seeds\\xml\\pom.xml";
+    /** 字典库列表 */
     private static ArrayList<String> dictList = new ArrayList<>();
 
     /** 获取文件中的标签 */
@@ -143,32 +142,5 @@ public class TagsGenerator {
             }
         }
         out.close();
-    }
-
-    public static void main(String[] args) throws IOException {
-        dictList = getDictionaryList(path);
-        System.out.println("dictionary: ");
-        System.out.println(dictList);
-        System.out.println("大小: " + dictList.size() + "\n");
-
-        tagWithProbability = getStringWithProbability(dictList);
-        System.out.println("tagWithProbability: ");
-        System.out.println(tagWithProbability);
-        System.out.println("大小: " + tagWithProbability.size() + "\n");
-
-        tagList = getStringList(tagWithProbability);
-        System.out.println("tagList: ");
-        System.out.println(tagList);
-        System.out.println("大小: " + tagList.size() + "\n");
-
-        probabilityList = getProbabilityList(tagWithProbability);
-        System.out.println("probabilityList: ");
-        System.out.println(probabilityList);
-        System.out.println("大小: " + probabilityList.size() + "\n");
-
-        seedList = getSeedList(tagList,probabilityList);
-        System.out.println("seedList: ");
-        System.out.println(seedList);
-        System.out.println("大小: " + seedList.size());
     }
 }

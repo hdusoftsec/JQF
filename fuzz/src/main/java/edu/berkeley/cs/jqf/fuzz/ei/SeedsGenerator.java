@@ -24,36 +24,6 @@ public class SeedsGenerator {
     /** 种子列表 */
     private static ArrayList<String> seedList = new ArrayList<>();
 
-    // D:\Zest\jqf\examples\src\test\resources\dictionaries\maven-model.dict
-    private static String path = "examples\\src\\test\\resources\\dictionaries\\maven-model.dict";
-    private static ArrayList<String> dictList = new ArrayList<>();
-
-    /** 获取字典库 */
-    public static ArrayList<String> getDictionaryList(String filePath){
-        File file = new File(filePath);
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(file));
-            String tempString = null;
-            int line = 1;
-            while ((tempString = reader.readLine()) != null) {
-                dictList.add(tempString);
-                line++;
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                }
-            }
-        }
-        return dictList;
-    }
-
     /** 统计标签及概率 */
     public static Map<String, Double> getStringWithProbability(ArrayList<String> dictionaryList){
 
@@ -125,33 +95,5 @@ public class SeedsGenerator {
             }
         }
         return seedList;
-    }
-
-    public static void main(String[] args){
-        dictList = getDictionaryList(path);
-        System.out.println("dictionary: ");
-        System.out.println(dictList);
-        System.out.println("大小: " + dictList.size() + "\n");
-
-        stringWithProbability = getStringWithProbability(dictList);
-        System.out.println("tagWithProbability: ");
-        System.out.println(stringWithProbability);
-        System.out.println("大小: " + stringWithProbability.size() + "\n");
-
-        stringList = getStringList(stringWithProbability);
-        System.out.println("tagList: ");
-        System.out.println(stringList);
-        System.out.println("大小: " + stringList.size() + "\n");
-
-        probabilityList = getProbabilityList(stringWithProbability);
-        System.out.println("probabilityList: ");
-        System.out.println(probabilityList);
-        System.out.println("大小: " + probabilityList.size() + "\n");
-
-        seedList = getSeedList(stringList,probabilityList);
-        System.out.println("seedList: ");
-        System.out.println(seedList);
-        System.out.println("大小: " + seedList.size());
-
     }
 }
