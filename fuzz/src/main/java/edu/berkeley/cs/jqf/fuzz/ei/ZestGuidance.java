@@ -85,11 +85,17 @@ public class ZestGuidance implements Guidance {
     /** The directory where all inputs are saved (if enabled). */
     protected File savedAllDirectory;
 
-    /** 字典库路径 */
-    protected static String absPathOfDict = "D:\\Zest\\jqf\\examples\\src\\test\\resources\\dictionaries\\compiler.dict";
+    /** 增加一个开关 */
+    private boolean useProbSeedsInput = false;
+
+    /** 字典库路径
+     * Windows "src\\test\\resources\\dictionaries\\compiler.dict"
+     * Linux "src/test/resources/dictionaries/compiler.dict"
+     * */
+    protected static String absPathOfDict = "src\\test\\resources\\dictionaries\\compiler.dict";
 
     /** 根据概率生成的种子 */
-    protected static ArrayList<Integer> seedValues = DictReaderB.seedsOfCertainProbability(absPathOfDict);
+    protected static ArrayList<Integer> seedValues;// = DictReaderB.seedsOfCertainProbability(absPathOfDict);
 
     /** Set of saved inputs to fuzz. */
     protected ArrayList<Input> savedInputs = new ArrayList<>();
@@ -234,6 +240,10 @@ public class ZestGuidance implements Guidance {
      * @throws IOException if the output directory could not be prepared
      */
     public ZestGuidance(String testName, Duration duration, File outputDirectory) throws IOException {
+        if(useProbSeedsInput)
+        {
+            seedValues = DictReaderB.seedsOfCertainProbability(absPathOfDict);
+        }
         this.testName = testName;
         this.maxDurationMillis = duration != null ? duration.toMillis() : Long.MAX_VALUE;
         this.outputDirectory = outputDirectory;
@@ -590,9 +600,12 @@ public class ZestGuidance implements Guidance {
 
     /** Spawns a new input from thin air (i.e., actually random) */
     protected Input<?> createFreshInput() throws IOException{
-        // return new LinearInput();
-        // return new DictInput();
-        return new CertainProbabilityInput();
+        if(useProbSeedsInput){
+            return new CertainProbabilityInput();
+            //return new DictInput();
+        }else {
+            return new LinearInput();
+        }
     }
 
     /**
@@ -610,13 +623,20 @@ public class ZestGuidance implements Guidance {
             public int read() throws IOException {
                 // assert currentInput instanceof LinearInput : "ZestGuidance should only mutate LinearInput(s)";
 
-                // For linear inputs, get with key = bytesRead (which is then incremented)
-                // LinearInput linearInput = (LinearInput) currentInput;
-                CertainProbabilityInput certainProbaInput = (CertainProbabilityInput) currentInput;
-                // Attempt to get a value from the list, or else generate a random value
-                // int ret = linearInput.getOrGenerateFresh(bytesRead++, random);
-                bytesRead = certainProbaInput.size();
-                int ret = certainProbaInput.getOrGenerateFresh(bytesRead++,random);
+                int ret;
+
+                if(useProbSeedsInput)
+                {
+                    CertainProbabilityInput certainProbaInput = (CertainProbabilityInput) currentInput;
+                    bytesRead = certainProbaInput.size();
+                    ret = certainProbaInput.getOrGenerateFresh(bytesRead++,random);
+                }else {
+                    // For linear inputs, get with key = bytesRead (which is then incremented)
+                    LinearInput linearInput = (LinearInput) currentInput;
+                    // Attempt to get a value from the list, or else generate a random value
+                    ret = linearInput.getOrGenerateFresh(bytesRead++, random);
+                }
+
                 // infoLog("read(%d) = %d", bytesRead, ret);
                 return ret;
             }

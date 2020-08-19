@@ -99,7 +99,9 @@ public class XmlDocumentGenerator extends Generator<Document> {
         {
             // Windows "src\\test\\resources\\seeddir"
             // Linux "src/test/resources/seeddir"
-            parseSeedFiles(new File("src\\test\\resources\\seeddir"));
+            File f = new File("src/test/resources/seeddir");
+            System.out.println("Use snippet file dir:"+ f.getAbsolutePath());
+            parseSeedFiles(f);
             dumpSnippets();
         }
         System.out.println("usingSnippet= "+ usingSnippet +"\n\n");
@@ -246,6 +248,8 @@ public class XmlDocumentGenerator extends Generator<Document> {
     public static int USE_SNIPPET_CHILD_ELEMENT_RATIO = 50;
     /**采用snippet Attr做Attr的百分比，100以内值*/
     public static int USE_SNIPPET_ATTR_RATIO = 50;
+    /**采用snipper时对snippet进行深度复制的百分比，100以内值*/
+    public static int USE_SNIPPET_DEEP_RATIO = 10;
 
     /**保存解析好的snippets， 为<SnippetType, SnippetArray>形式*/
     public static HashMap<Integer, ArrayList<Node>> snippetMap = new HashMap <>();
@@ -455,7 +459,7 @@ public class XmlDocumentGenerator extends Generator<Document> {
         if(array.size()>0)
         {
             Node node = array.get(random.nextInt(array.size()));
-            boolean deep = random.nextInt(100)<10?true:false;// random.nextBoolean()
+            boolean deep = random.nextInt(100)<USE_SNIPPET_DEEP_RATIO?true:false;// random.nextBoolean()
             if(type == DOCUMENT_ROOT_NODE){deep = false;}
             Node newNode =  document.importNode(node, deep);
             /*NodeList childs = newNode.getChildNodes();

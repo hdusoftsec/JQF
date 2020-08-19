@@ -90,7 +90,7 @@ public class DictReaderB {
         double totalProbability = 0.0;
         double temp = Math.random();
         temp = (double) Math.round(temp * 100) / 100;
-        while ((temp > totalProbability) & (i < seedMap.size())){
+        while ((temp > totalProbability) && (i < seedMap.size())){
             seed = seedV.get(i);
             totalProbability += seedP.get(i);
             i++;
@@ -121,13 +121,14 @@ public class DictReaderB {
         dictInputByString = getDictInputByLine(filePath);
         seedProbability = seedsProbabilityCalculator(dictInputByString);
 
+        System.out.println("DictReaderB.seedsOfCertainProbability filePath is "+ new File(filePath).getAbsolutePath());
         for (int i=0;i<seedProbability.size();i++){
             String str = singleSeedGenerator(seedProbability);
-            if (str!=""){
+            if (str!="" && str != null){
                 int seedValue = stringToInt(str);
                 seedInput.add(seedValue);
             }else{
-                seedInput.add(null);
+                seedInput.add(0);//seedInput.add(null);
             }
         }
         return seedInput;
