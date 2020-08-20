@@ -63,7 +63,7 @@ public class ModelReaderTest {
 
     @Fuzz
     public void testWithGenerator(@From(XmlDocumentGenerator.class)
-                                      @Dictionary("dictionaries/maven-model.dict") Document dom) {
+                                      @Dictionary("src/test/resources/dictionaries/maven-model.dict") Document dom) {
         testWithInputStream(XMLDocumentUtils.documentToInputStream(dom));
     }
 
