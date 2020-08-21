@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>applications_exe2</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  <servlet>
+    <description></description>
+    <display-name>XMLTransformerAskhsh</display-name>
+    <servlet-name>XMLTransformerAskhsh</servlet-name>
+    <servlet-class>servlets.XMLTransformerAskhsh</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>XMLTransformerAskhsh</servlet-name>
+    <url-pattern>/XMLTransformerAskhsh</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>JavaParseXML</display-name>
+    <servlet-name>JavaParseXML</servlet-name>
+    <servlet-class>servlets.JavaParseXML</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>JavaParseXML</servlet-name>
+    <url-pattern>/JavaParseXML</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>XSLParseXML</display-name>
+    <servlet-name>XSLParseXML</servlet-name>
+    <servlet-class>servlets.XSLParseXML</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>XSLParseXML</servlet-name>
+    <url-pattern>/XSLParseXML</url-pattern>
+  </servlet-mapping>
+</web-app>

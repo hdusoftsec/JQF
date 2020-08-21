@@ -58,7 +58,7 @@ public class WebXmlTest {
     }
 
     @Fuzz
-    public void testWithGenerator(@From(XmlDocumentGenerator.class) @Dictionary("dictionaries/tomcat-webxml.dict") Document dom) {
+    public void testWithGenerator(@From(XmlDocumentGenerator.class) @Dictionary("src/test/resources/dictionaries/tomcat-webxml.dict") Document dom) {
         testWithInputStream(XMLDocumentUtils.documentToInputStream(dom));
     }
 
